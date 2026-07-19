@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "LibraryHub",
+    "description": "user-service (8081) və book-service (8082) üçün bütün API endpoint-ləri",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "userBaseUrl", "value": "http://localhost:8081" },
+    { "key": "bookBaseUrl", "value": "http://localhost:8082" },
+    { "key": "accessToken", "value": "" },
+    { "key": "bookId", "value": "1" },
+    { "key": "borrowId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{userBaseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin1\",\n  \"email\": \"admin1@example.com\",\n  \"password\": \"Admin123!\",\n  \"fullName\": \"Admin User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{userBaseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"Admin123!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Users",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{userBaseUrl}}/api/users/me"
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{userBaseUrl}}/api/users/me",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Name\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Borrow History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{userBaseUrl}}/api/users/me/borrows"
+          }
+        },
+        {
+          "name": "Get All Users (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{userBaseUrl}}/api/users?page=0&size=10"
+          }
+        },
+        {
+          "name": "Get User By Id (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{userBaseUrl}}/api/users/1"
+          }
+        },
+        {
+          "name": "Deactivate User (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{userBaseUrl}}/api/users/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{bookBaseUrl}}/api/categories"
+          }
+        },
+        {
+          "name": "Create Category (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{bookBaseUrl}}/api/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Roman\",\n  \"description\": \"Bədii ədəbiyyat\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Books",
+      "item": [
+        {
+          "name": "Get Book By Id",
+          "request": {
+            "method": "GET",
+            "url": "{{bookBaseUrl}}/api/books/{{bookId}}"
+          }
+        },
+        {
+          "name": "Search Books",
+          "request": {
+            "method": "GET",
+            "url": "{{bookBaseUrl}}/api/books/search?title=&author=&categoryId=&page=0&size=10"
+          }
+        },
+        {
+          "name": "Create Book (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{bookBaseUrl}}/api/books",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dune\",\n  \"author\": \"Frank Herbert\",\n  \"isbn\": \"1111111111\",\n  \"categoryId\": 1,\n  \"totalCopies\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Book (ADMIN)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{bookBaseUrl}}/api/books/{{bookId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dune (Yenilənmiş)\",\n  \"author\": \"Frank Herbert\",\n  \"isbn\": \"1111111111\",\n  \"categoryId\": 1,\n  \"totalCopies\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Book (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{bookBaseUrl}}/api/books/{{bookId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Borrows",
+      "item": [
+        {
+          "name": "Borrow Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('borrowId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{bookBaseUrl}}/api/borrows",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": {{bookId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Return Book",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{bookBaseUrl}}/api/borrows/{{borrowId}}/return"
+          }
+        },
+        {
+          "name": "Get My Active Borrows",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{bookBaseUrl}}/api/borrows/my"
+          }
+        }
+      ]
+    }
+  ]
+}
